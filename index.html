@@ -319,6 +319,12 @@
             opacity: 1;
             color: #f43f5e;
         }
+        .keyboard-hint {
+            text-align: center;
+            font-size: 0.7rem;
+            opacity: 0.5;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -350,6 +356,9 @@
             <button class="btn" id="startBtn">Start</button>
             <button class="btn btn-secondary" id="resetBtn">Reset</button>
         </div>
+
+        <div class="keyboard-hint">Shortcuts: [Space] Start/Pause | [R] Reset | [S] Skip</div>
+
 
         <!-- Analytics Dashboard Box -->
         <div class="stats-dashboard">
@@ -545,8 +554,7 @@
                 }
             }
         }
-
-        startBtn.addEventListener('click', () => {
+function handleTimerAction() {
             if (!isRunning) {
                 timerId = setInterval(timerTick, 1000);
                 isRunning = true;
@@ -556,14 +564,43 @@
                 isRunning = false;
                 startBtn.textContent = 'Resume';
             }
-        });
+        }
 
-        resetBtn.addEventListener('click', () => {
+        function handleTimerReset() {
             clearInterval(timerId);
             isRunning = false;
             startBtn.textContent = 'Start';
             timeLeft = times[currentMode];
             updateDisplay();
+        }
+
+        function handleTimerSkip() {
+            clearInterval(timerId);
+            isRunning = false;
+            startBtn.textContent = 'Start';
+            if (currentMode === 'work') {
+                switchMode('shortBreak');
+            } else {
+                switchMode('work');
+            }
+        }
+
+        startBtn.addEventListener('click', handleTimerAction);
+        resetBtn.addEventListener('click', handleTimerReset);
+
+        // --- Keyboard Shortcuts Listeners ---
+        window.addEventListener('keydown', (e) => {
+            // Do not trigger shortcuts if user is typing in the task input box
+            if (document.activeElement === taskInput) return;
+
+            if (e.code === 'Space') {
+                e.preventDefault(); // Prevent page scrolling down on Space
+                handleTimerAction();
+            } else if (e.code === 'KeyR') {
+                handleTimerReset();
+            } else if (e.code === 'KeyS') {
+                handleTimerSkip();
+            }
         });
 
         // Floating PiP Feature
